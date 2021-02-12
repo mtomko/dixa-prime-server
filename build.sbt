@@ -6,6 +6,7 @@ lazy val versions = new {
   val catsEffect = "2.3.1"
   val console4Cats = "0.8.1"
   val fs2 = "2.5.0"
+  val fs2Grpc = "0.8.0"
   val grpc = "1.30.2"
   val munit = "0.7.21"
   val protobuf = "3.14.0"
@@ -18,6 +19,7 @@ lazy val libraries = new {
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val console4Cats = "dev.profunktor" %% "console4cats" % versions.console4Cats
   val fs2 = "co.fs2" %% "fs2-core" % versions.fs2
+  val fs2Grpc = "org.lyranthe.fs2-grpc" %% "java-runtime" % versions.fs2Grpc
   val grpcApi = "io.grpc" % "grpc-api" % versions.grpc
   val grpcNetty = "io.grpc" % "grpc-netty" % versions.grpc
   val grpcServices = "io.grpc" % "grpc-services" % versions.grpc
@@ -64,8 +66,12 @@ lazy val client =
     .settings(
       name := "dixa-prime-service-client",
       libraryDependencies ++= List(
+        libraries.catsCore,
+        libraries.catsEffect,
         libraries.console4Cats,
-        libraries.grpcNetty,
+        libraries.fs2,
+        libraries.fs2Grpc,
+        libraries.grpcApi,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
       ),
@@ -95,7 +101,10 @@ lazy val server =
     .settings(
       name := "dixa-prime-service-server",
       libraryDependencies ++= List(
-        libraries.grpcNetty,
+        libraries.catsEffect,
+        libraries.fs2,
+        libraries.fs2Grpc,
+        libraries.grpcApi,
         libraries.grpcServices,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
