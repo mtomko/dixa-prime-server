@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+service PrimesService {
+  rpc Primes(PrimeRequest) returns (stream PrimeResponse);
+}
+
+message PrimeRequest {
+  int32 upTo = 1;
+}
+
+message PrimeResponse {
+  int32 next = 1;
+}

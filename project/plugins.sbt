@@ -1,0 +1,8 @@
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.10.0")
+addSbtPlugin("com.github.cb372" % "sbt-explicit-dependencies" % "0.2.16")
+addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.16")
+addSbtPlugin("org.lyranthe.fs2-grpc" % "sbt-java-gen" % "0.8.0")
+//addSbtPlugin("com.twitter" % "scrooge-sbt-plugin" % "21.2.0")
