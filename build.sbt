@@ -72,6 +72,7 @@ lazy val client =
         libraries.fs2,
         libraries.fs2Grpc,
         libraries.grpcApi,
+        libraries.grpcNetty % Runtime,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
       ),
@@ -86,7 +87,7 @@ lazy val proxy =
     .settings(
       name := "dixa-prime-service-proxy",
       libraryDependencies ++= List(
-        libraries.grpcNetty,
+        libraries.grpcNetty % Runtime,
         libraries.grpcServices,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
@@ -105,6 +106,7 @@ lazy val server =
         libraries.fs2,
         libraries.fs2Grpc,
         libraries.grpcApi,
+        libraries.grpcNetty % Runtime,
         libraries.grpcServices,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
