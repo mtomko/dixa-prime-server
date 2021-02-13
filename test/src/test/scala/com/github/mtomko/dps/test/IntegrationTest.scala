@@ -1,7 +1,6 @@
 package com.github.mtomko.dps.test
 
 import cats.effect.{IO, Resource}
-import cats.syntax.all._
 import com.github.mtomko.dps.client.Client
 import com.github.mtomko.dps.proxy.Proxy
 import com.github.mtomko.dps.server.Server
@@ -36,7 +35,8 @@ class IntegrationTest extends CatsEffectSuite {
           // normally asserting an error message is overfitting unless the error message is a specific part of the API
           // contract, but in this case the types of errors we can throw is pretty limited and it's important to be sure
           // that the error that the client gets is related to the specific error case we created; the exception that's
-          // thrown isn't related to the type that the server threw, unfortunately
+          // caught here isn't related to the type that the server threw, unfortunately, so we can't do much more than
+          // inspect the message
           IO(assert(e.getMessage.contains("fewer than 0 primes")))
         case Left(_) =>  IO(fail("Unexpected exception"))
         case Right(_) => IO(fail("No exception"))
