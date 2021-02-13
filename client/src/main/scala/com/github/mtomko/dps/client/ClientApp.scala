@@ -12,7 +12,7 @@ object ClientApp extends IOApp {
       .use { blocker =>
         Client.resource[IO]("127.0.0.1", 9998).use { client =>
           client
-            .primes(PrimeRequest.of(100), new Metadata)
+            .primes(PrimeRequest.of(-5), new Metadata)
             .evalMap(p => blocker.blockOn(putStrLn(p.next)))
             .compile
             .drain
