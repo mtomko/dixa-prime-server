@@ -1,34 +1,25 @@
 package com.github.mtomko.dps.server
 
-import cats.effect.{ExitCode, IO, IOApp, Sync, Timer}
-import fs2.Stream
+import cats.effect.{ConcurrentEffect, Resource, Sync, Timer}
 import io.grpc.protobuf.services.ProtoReflectionService
-import io.grpc.{Metadata, ServerBuilder, ServerServiceDefinition}
-import prime.{PrimeRequest, PrimeResponse, PrimesServiceFs2Grpc}
+import io.grpc.{Server => GrpcServer, ServerBuilder, ServerServiceDefinition}
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
 //import org.lyranthe.fs2_grpc.java_runtime.implicits._ // dohj thinks this is unused
-import scala.concurrent.duration._
+import prime.PrimesServiceFs2Grpc
 
-class PrimesServiceImpl[F[_]: Sync: Timer] extends PrimesServiceFs2Grpc[F, Metadata] {
-  override def primes(request: PrimeRequest, ctx: Metadata): Stream[F, PrimeResponse] =
-    Stream.iterate(0)(_ + 1).takeWhile(_ < request.upTo).covary[F].metered(20.millis).map(PrimeResponse.of)
-}
+object Server {
 
-object Server extends IOApp {
-  override def run(args: List[String]): IO[ExitCode] = {
-    val primesService: ServerServiceDefinition = PrimesServiceFs2Grpc.bindService(new PrimesServiceImpl[IO])
+  case class Config(port: Int)
+
+  def resource[F[_]: Sync: ConcurrentEffect: Timer](config: Config): Resource[F, GrpcServer] = {
+    val primesService: ServerServiceDefinition = PrimesServiceFs2Grpc.bindService(new PrimesServiceImpl[F])
 
     ServerBuilder
-      .forPort(9999)
+      .forPort(config.port)
       .addService(primesService)
       .addService(ProtoReflectionService.newInstance()) // reflection makes lots of tooling happy
-      .stream[IO] // or for any F: Sync
-      .evalMap(server => IO(server.start())) // start server
-      .evalMap(_ => IO.never)
-      .compile
-      .drain
-      .as(ExitCode.Success)
-    //.evalMap(_ => IO.never) // server now running
+      .resource[F]
+      .map(server => server.start)
   }
 
 }

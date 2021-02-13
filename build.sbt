@@ -9,6 +9,7 @@ lazy val versions = new {
   val fs2Grpc = "0.8.0"
   val grpc = "1.30.2"
   val munit = "0.7.21"
+  val munitCatsEffect2 = "0.13.0"
   val protobuf = "3.14.0"
   val scalaPbLenses = "0.10.8"
 }
@@ -28,7 +29,10 @@ lazy val libraries = new {
   // test dependencies
   val munit = "org.scalameta" %% "munit" % versions.munit
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % versions.munit
+  val munitCatsEffect2 = "org.typelevel" %% "munit-cats-effect-2" % versions.munitCatsEffect2
 }
+
+lazy val commonSettings = List(testFrameworks := List(new TestFramework("munit.Framework")))
 
 lazy val root = (project in file("."))
   .settings(
@@ -36,13 +40,14 @@ lazy val root = (project in file("."))
     name := "dixa-prime-service",
     skip in publish := true
   )
-  .aggregate(client, protobuf, proxy, server)
+  .aggregate(client, protobuf, proxy, server, test)
   .disablePlugins(AssemblyPlugin, RevolverPlugin)
 
 lazy val protobuf =
   project
     .in(file("protobuf"))
     .enablePlugins(Fs2Grpc)
+    .settings(commonSettings: _*)
     .settings(
       name := "dixa-prime-service-protobuf",
       libraryDependencies ++= List(
@@ -63,6 +68,7 @@ lazy val client =
   project
     .in(file("client"))
     .dependsOn(protobuf)
+    .settings(commonSettings: _*)
     .settings(
       name := "dixa-prime-service-client",
       libraryDependencies ++= List(
@@ -83,10 +89,16 @@ lazy val client =
 lazy val proxy =
   project
     .in(file("proxy"))
-    .dependsOn(protobuf)
+    .dependsOn(protobuf, client)
+    .settings(commonSettings: _*)
     .settings(
       name := "dixa-prime-service-proxy",
       libraryDependencies ++= List(
+        libraries.catsCore,
+        libraries.catsEffect,
+        libraries.fs2,
+        libraries.fs2Grpc,
+        libraries.grpcApi,
         libraries.grpcNetty % Runtime,
         libraries.grpcServices,
         libraries.munit % Test,
@@ -99,9 +111,11 @@ lazy val server =
   project
     .in(file("server"))
     .dependsOn(protobuf)
+    .settings(commonSettings: _*)
     .settings(
       name := "dixa-prime-service-server",
       libraryDependencies ++= List(
+        libraries.catsCore,
         libraries.catsEffect,
         libraries.fs2,
         libraries.fs2Grpc,
@@ -113,3 +127,26 @@ lazy val server =
       ),
       addCompilerPlugin(libraries.betterMonadicFor)
     )
+
+lazy val test =
+  project
+    .in(file("test"))
+    .dependsOn(client, protobuf, proxy, server)
+    .settings(commonSettings: _*)
+    .settings(
+      name := "dixa-prime-service-test",
+      skip in publish := true,
+      libraryDependencies ++= List(
+        libraries.catsEffect % Test,
+        libraries.fs2 % Test,
+        libraries.fs2Grpc % Test,
+        libraries.grpcApi % Test,
+        libraries.grpcNetty % Runtime,
+        libraries.grpcServices % Test,
+        libraries.munit % Test,
+        libraries.munitScalaCheck % Test,
+        libraries.munitCatsEffect2 % Test
+      ),
+      addCompilerPlugin(libraries.betterMonadicFor)
+    )
+    .disablePlugins(AssemblyPlugin, RevolverPlugin)
