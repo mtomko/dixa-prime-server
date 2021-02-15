@@ -8,6 +8,8 @@ lazy val versions = new {
   val fs2 = "2.5.0"
   val fs2Grpc = "0.8.0"
   val grpc = "1.30.2"
+  val http4s = "0.21.16"
+  val logback = "1.2.3"
   val munit = "0.7.21"
   val munitCatsEffect2 = "0.13.0"
   val protobuf = "3.14.0"
@@ -26,10 +28,16 @@ lazy val libraries = new {
   val grpcApi = "io.grpc" % "grpc-api" % versions.grpc
   val grpcNetty = "io.grpc" % "grpc-netty" % versions.grpc
   val grpcServices = "io.grpc" % "grpc-services" % versions.grpc
+  val http4sBlazeServer = "org.http4s" %% "http4s-blaze-server" % versions.http4s
+  val http4sClient = "org.http4s" %% "http4s-blaze-client" % versions.http4s
+  val http4sCore = "org.http4s" %% "http4s-core" % versions.http4s
+  val http4sDsl = "org.http4s" %% "http4s-dsl" % versions.http4s
+  val http4sServer = "org.http4s" %% "http4s-server" % versions.http4s
+  val logback = "ch.qos.logback" % "logback-classic" % versions.logback
   val protobuf = "com.google.protobuf" % "protobuf-java" % versions.protobuf
   val refined = "eu.timepit" %% "refined" % versions.refined
   val scalaPbLenses = "com.thesamet.scalapb" %% "lenses" % versions.scalaPbLenses
-  val shapeless =  "com.chuusai" %% "shapeless" % versions.shapeless
+  val shapeless = "com.chuusai" %% "shapeless" % versions.shapeless
 
   // test dependencies
   val munit = "org.scalameta" %% "munit" % versions.munit
@@ -106,7 +114,11 @@ lazy val proxy =
         libraries.fs2Grpc,
         libraries.grpcApi,
         libraries.grpcNetty % Runtime,
-        libraries.grpcServices,
+        libraries.http4sBlazeServer,
+        libraries.http4sCore,
+        libraries.http4sDsl,
+        libraries.http4sServer,
+        libraries.logback % Runtime,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
       ),
@@ -153,6 +165,8 @@ lazy val test =
         libraries.grpcApi % Test,
         libraries.grpcNetty % Runtime,
         libraries.grpcServices % Test,
+        libraries.http4sClient % Test,
+        libraries.logback % Runtime,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test,
         libraries.munitCatsEffect2 % Test

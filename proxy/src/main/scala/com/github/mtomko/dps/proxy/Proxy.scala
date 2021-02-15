@@ -1,26 +1,26 @@
 package com.github.mtomko.dps.proxy
 
-import cats.effect.{ConcurrentEffect, Resource, Sync}
-import io.grpc.protobuf.services.ProtoReflectionService
-import io.grpc.{Server, ServerBuilder, ServerServiceDefinition}
-import org.lyranthe.fs2_grpc.java_runtime.implicits._
-//import org.lyranthe.fs2_grpc.java_runtime.implicits._ // dohj thinks this is unused
-import prime.PrimesServiceFs2Grpc
+import cats.effect.{ConcurrentEffect, Resource, Timer}
+import org.http4s.implicits._
+import org.http4s.server.Server
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.server.middleware.Logger
+
+import scala.concurrent.ExecutionContext.global
 
 object Proxy {
 
   final case class Config(targetIp: String, targetPort: Int)
 
-  def resource[F[_]: Sync: ConcurrentEffect](config: Config, port: Int): Resource[F, Server] = {
+  def resource[F[_]: ConcurrentEffect](config: Proxy.Config, port: Int)(implicit
+    T: Timer[F]
+  ): Resource[F, Server[F]] = {
     val client = new PrimesServiceProxyImpl[F](config)
-    val primesService: ServerServiceDefinition = PrimesServiceFs2Grpc.bindService(client)
-
-    ServerBuilder
-      .forPort(port)
-      .addService(primesService)
-      .addService(ProtoReflectionService.newInstance()) // reflection makes lots of tooling happy
-      .resource[F]
-      .map(proxy => proxy.start)
+    val httpApp = ProxyRoutes.primeRoutes[F](client).orNotFound
+    val finalHttpApp = Logger.httpApp(true, true)(httpApp)
+    BlazeServerBuilder[F](global)
+      .bindHttp(port, "0.0.0.0")
+      .withHttpApp(finalHttpApp)
+      .resource
   }
-
 }

@@ -1,44 +1,44 @@
 package com.github.mtomko.dps.test
 
 import cats.effect.{IO, Resource}
-import com.github.mtomko.dps.client.Client
 import com.github.mtomko.dps.proxy.Proxy
 import com.github.mtomko.dps.server.Server
-import fs2.Stream
-import io.grpc.{Metadata, StatusRuntimeException}
 import munit.CatsEffectSuite
-import prime.{PrimeRequest, PrimesServiceFs2Grpc}
+import org.http4s.Status
+import org.http4s.client.blaze.BlazeClientBuilder
+
+import scala.concurrent.ExecutionContext.global
 
 class IntegrationTest extends CatsEffectSuite {
 
-  val client: Resource[IO, PrimesServiceFs2Grpc[IO, Metadata]] =
+  val client: Resource[IO, ProxyClient[IO]] =
     for {
       _ <- Proxy.resource[IO](Proxy.Config("127.0.0.1", 4444), 8888)
       _ <- Server.resource[IO](Server.Config(4444))
-      c <- Client.resource[IO]("127.0.0.1", 8888)
-    } yield c
+      blazeClient <- BlazeClientBuilder[IO](global).resource
+    } yield new ProxyClient[IO](ProxyClient.Config("127.0.0.1", 8888), blazeClient)
 
   test("everything works") {
-    val s =
-      for {
-        c <- Stream.resource(client)
-        primes <- Stream.eval(c.primes(PrimeRequest.of(10), new Metadata).map(_.next).compile.toList)
-      } yield assertEquals(primes, List(2, 3, 5, 7))
-
-    s.compile.drain
+    client.use { c =>
+      assertIO(c.primes(20.toString).compile.toList, List(2, 3, 5, 7, 11, 13, 17, 19))
+    }
   }
 
-  test("invalid requests raise expected exceptions") {
+  test("invalid integers yield 400") {
     client.use { c =>
-      c.primes(PrimeRequest.of(-1), new Metadata).compile.drain.attempt.flatMap {
-        case Left(e: StatusRuntimeException) =>
-          // normally asserting an error message is overfitting unless the error message is a specific part of the API
-          // contract, but in this case the types of errors we can throw is pretty limited and it's important to be sure
-          // that the error that the client gets is related to the specific error case we created; the exception that's
-          // caught here isn't related to the type that the server threw, unfortunately, so we can't do much more than
-          // inspect the message
-          IO(assert(e.getMessage.contains("Cannot request primes less than 0")))
-        case Left(_) =>  IO(fail("Unexpected exception"))
+      c.primes(-1.toString).compile.drain.attempt.flatMap {
+        case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.BadRequest))
+        case Left(e) =>  IO(fail(s"Unexpected exception: $e"))
+        case Right(_) => IO(fail("No exception"))
+      }
+    }
+  }
+
+  test("non integers yield 404") {
+    client.use { c =>
+      c.primes("this is not a number").compile.drain.attempt.flatMap {
+        case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.NotFound))
+        case Left(e) =>  IO(fail(s"Unexpected exception: $e"))
         case Right(_) => IO(fail("No exception"))
       }
     }
