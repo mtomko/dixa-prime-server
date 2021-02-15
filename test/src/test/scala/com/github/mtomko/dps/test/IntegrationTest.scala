@@ -28,7 +28,7 @@ class IntegrationTest extends CatsEffectSuite {
     s.compile.drain
   }
 
-  test("invalid values return exceptions") {
+  test("invalid requests raise expected exceptions") {
     client.use { c =>
       c.primes(PrimeRequest.of(-1), new Metadata).compile.drain.attempt.flatMap {
         case Left(e: StatusRuntimeException) =>
@@ -37,7 +37,7 @@ class IntegrationTest extends CatsEffectSuite {
           // that the error that the client gets is related to the specific error case we created; the exception that's
           // caught here isn't related to the type that the server threw, unfortunately, so we can't do much more than
           // inspect the message
-          IO(assert(e.getMessage.contains("fewer than 0 primes")))
+          IO(assert(e.getMessage.contains("Cannot request primes less than 0")))
         case Left(_) =>  IO(fail("Unexpected exception"))
         case Right(_) => IO(fail("No exception"))
       }

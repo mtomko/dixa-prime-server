@@ -1,19 +1,17 @@
 package com.github.mtomko.dps.server
 
-import cats.effect.{Sync, Timer}
+import cats.effect.Sync
+import eu.timepit.refined._
+import eu.timepit.refined.auto._
+import eu.timepit.refined.numeric._
 import fs2.Stream
 import io.grpc.Metadata
 import prime.{PrimeRequest, PrimeResponse, PrimesServiceFs2Grpc}
-//import scala.concurrent.duration._
 
-class PrimesServiceImpl[F[_]: Sync: Timer] extends PrimesServiceFs2Grpc[F, Metadata] {
+class PrimesServiceImpl[F[_]: Sync] extends PrimesServiceFs2Grpc[F, Metadata] {
   override def primes(request: PrimeRequest, ctx: Metadata): Stream[F, PrimeResponse] =
-    if (request.upTo < 0) Stream.raiseError(PrimeException(s"Cannot request fewer than 0 primes (${request.upTo})"))
-    else {
-      sieveOfEratosthenes
-        .takeWhile(_ < request.upTo)
-        .covary[F]
-        //.metered(100.millis) // this is just for testing purposes
-        .map(PrimeResponse.of)
+    refineV[Positive](request.upTo) match {
+      case Left(_)     => Stream.raiseError(PrimeException("Cannot request primes less than 0"))
+      case Right(upTo) => primesUpTo(upTo).map(PrimeResponse.of)
     }
 }

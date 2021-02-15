@@ -11,7 +11,9 @@ lazy val versions = new {
   val munit = "0.7.21"
   val munitCatsEffect2 = "0.13.0"
   val protobuf = "3.14.0"
+  val refined = "0.9.20"
   val scalaPbLenses = "0.10.8"
+  val shapeless = "2.3.3"
 }
 
 lazy val libraries = new {
@@ -25,11 +27,15 @@ lazy val libraries = new {
   val grpcNetty = "io.grpc" % "grpc-netty" % versions.grpc
   val grpcServices = "io.grpc" % "grpc-services" % versions.grpc
   val protobuf = "com.google.protobuf" % "protobuf-java" % versions.protobuf
+  val refined = "eu.timepit" %% "refined" % versions.refined
   val scalaPbLenses = "com.thesamet.scalapb" %% "lenses" % versions.scalaPbLenses
+  val shapeless =  "com.chuusai" %% "shapeless" % versions.shapeless
+
   // test dependencies
   val munit = "org.scalameta" %% "munit" % versions.munit
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % versions.munit
   val munitCatsEffect2 = "org.typelevel" %% "munit-cats-effect-2" % versions.munitCatsEffect2
+  val refinedScalaCheck = "eu.timepit" %% "refined-scalacheck" % versions.refined
 }
 
 lazy val commonSettings = List(testFrameworks := List(new TestFramework("munit.Framework")))
@@ -122,8 +128,12 @@ lazy val server =
         libraries.grpcApi,
         libraries.grpcNetty % Runtime,
         libraries.grpcServices,
+        libraries.refined,
+        libraries.shapeless,
         libraries.munit % Test,
-        libraries.munitScalaCheck % Test
+        libraries.munitCatsEffect2 % Test,
+        libraries.munitScalaCheck % Test,
+        libraries.refinedScalaCheck % Test
       ),
       addCompilerPlugin(libraries.betterMonadicFor)
     )
