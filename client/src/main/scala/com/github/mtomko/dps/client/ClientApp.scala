@@ -10,7 +10,7 @@ object ClientApp extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     Blocker[IO]
       .use { blocker =>
-        Client.resource[IO]("127.0.0.1", 9998).use { client =>
+        Client.resource[IO]("127.0.0.1", 9999).use { client =>
           putStr("Enter max: ") *>
             readLn
               .map(_.toInt)
