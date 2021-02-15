@@ -13,7 +13,7 @@ an "infinite" stream of primes. The server project provides a simple server app 
 code for embedding a server.
 
 ### Client
-A simple client implementation plus a simple client app.
+A simple gRPC client implementation plus a simple client app.
 
 ### Proxy
 A proxy that uses the client and the same protocol as the server, but relies on an upstream sever
@@ -30,11 +30,13 @@ You can use the `sbt-revolver` plugin to start the server and proxy:
 sbt> reStart
 ```
 
-then run the client:
+then run the client to query the server:
 
 ```shell
 sbt> client/run
 ```
+
+You can use a web browser to query the proxy: http://127.0.0.1:9998/prime/100
 
 This will print a number of primes to the console. You can shut down the server and proxy with:
 
