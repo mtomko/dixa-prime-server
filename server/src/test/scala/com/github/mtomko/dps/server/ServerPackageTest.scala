@@ -33,16 +33,17 @@ class ServerPackageTest extends CatsEffectSuite with ScalaCheckSuite {
   test("primesUpTo does not contain composites of other values") {
     val min: Int Refined Positive = 2
     val max: Int Refined Positive = 10
-    forAll(chooseRefinedNum(min, max), chooseRefinedNum(min, max)) { (x: Int Refined Positive, y: Int Refined Positive) =>
-      // x or y may be prime, but x * y is composite
-      refineV[Positive](x * y) match {
-        case Left(_) => fail("this cannot happen")
-        case Right(composite) =>
-          val primes = primesUpTo(composite)
+    forAll(chooseRefinedNum(min, max), chooseRefinedNum(min, max)) {
+      (x: Int Refined Positive, y: Int Refined Positive) =>
+        // x or y may be prime, but x * y is composite
+        refineV[Positive](x * y) match {
+          case Left(_) => fail("this cannot happen")
+          case Right(composite) =>
+            val primes = primesUpTo(composite)
 
-          // primes up to `composite` cannot contain a known composite number
-          primes.compile.last.forall(_ =!= composite)
-      }
+            // primes up to `composite` cannot contain a known composite number
+            primes.compile.last.forall(_ =!= composite)
+        }
     }
   }
 

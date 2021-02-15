@@ -3,13 +3,15 @@ package com.github.mtomko.dps.test
 import cats.effect.{IO, Resource}
 import com.github.mtomko.dps.proxy.Proxy
 import com.github.mtomko.dps.server.Server
-import munit.CatsEffectSuite
+import munit.{CatsEffectSuite, ScalaCheckEffectSuite}
 import org.http4s.Status
 import org.http4s.client.blaze.BlazeClientBuilder
+import org.scalacheck.Gen
+import org.scalacheck.effect.PropF.forAllF
 
 import scala.concurrent.ExecutionContext.global
 
-class IntegrationTest extends CatsEffectSuite {
+class IntegrationTest extends CatsEffectSuite with ScalaCheckEffectSuite {
 
   val client: Resource[IO, ProxyClient[IO]] =
     for {
@@ -25,21 +27,25 @@ class IntegrationTest extends CatsEffectSuite {
   }
 
   test("invalid integers yield 400") {
-    client.use { c =>
-      c.primes(-1.toString).compile.drain.attempt.flatMap {
-        case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.BadRequest))
-        case Left(e) =>  IO(fail(s"Unexpected exception: $e"))
-        case Right(_) => IO(fail("No exception"))
+    forAllF(Gen.negNum[Int]) { n =>
+      client.use { c =>
+        c.primes(n.toString).compile.drain.attempt.flatMap {
+          case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.BadRequest))
+          case Left(e)                                 => IO(fail(s"Unexpected exception: $e"))
+          case Right(_)                                => IO(fail("No exception"))
+        }
       }
     }
   }
 
   test("non integers yield 404") {
-    client.use { c =>
-      c.primes("this is not a number").compile.drain.attempt.flatMap {
-        case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.NotFound))
-        case Left(e) =>  IO(fail(s"Unexpected exception: $e"))
-        case Right(_) => IO(fail("No exception"))
+    forAllF(Gen.alphaStr) { s =>
+      client.use { c =>
+        c.primes(s).compile.drain.attempt.flatMap {
+          case Left(ProxyClient.ProxyError(status, _)) => IO(assertEquals(status, Status.NotFound))
+          case Left(e)                                 => IO(fail(s"Unexpected exception: $e"))
+          case Right(_)                                => IO(fail("No exception"))
+        }
       }
     }
   }

@@ -15,6 +15,7 @@ lazy val versions = new {
   val protobuf = "3.14.0"
   val refined = "0.9.20"
   val scalaPbLenses = "0.10.8"
+  val scalaCheckEffect = "0.7.0"
   val shapeless = "2.3.3"
 }
 
@@ -44,6 +45,7 @@ lazy val libraries = new {
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % versions.munit
   val munitCatsEffect2 = "org.typelevel" %% "munit-cats-effect-2" % versions.munitCatsEffect2
   val refinedScalaCheck = "eu.timepit" %% "refined-scalacheck" % versions.refined
+  val scalaCheckEffect = "org.typelevel" %% "scalacheck-effect-munit" % versions.scalaCheckEffect
 }
 
 lazy val commonSettings = List(testFrameworks := List(new TestFramework("munit.Framework")))
@@ -169,7 +171,8 @@ lazy val test =
         libraries.logback % Runtime,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test,
-        libraries.munitCatsEffect2 % Test
+        libraries.munitCatsEffect2 % Test,
+        libraries.scalaCheckEffect % Test
       ),
       addCompilerPlugin(libraries.betterMonadicFor)
     )

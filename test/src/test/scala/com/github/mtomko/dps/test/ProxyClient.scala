@@ -2,7 +2,7 @@ package com.github.mtomko.dps.test
 
 import cats.effect.Sync
 import cats.syntax.all._
-import fs2.{Stream, text}
+import fs2.{text, Stream}
 import org.http4s.Method._
 import org.http4s.UriTemplate.PathElm
 import org.http4s.client.Client
@@ -14,7 +14,7 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
   private val dsl = new Http4sClientDsl[F] {}
   import dsl._
 
-  private def handleError(r: Response[F]): Stream[F, Response[F]] = {
+  private def handleError(r: Response[F]): Stream[F, Response[F]] =
     if (r.status === Status.Ok) Stream.emit(r)
     else {
       val body = r.body.through(text.utf8Decode)
@@ -23,7 +23,6 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
       }
       Stream.eval(f)
     }
-  }
 
   // one wouldn't normally allow this in a client, but we need to be able to get invalid inputs to the server
   // in our test
