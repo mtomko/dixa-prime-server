@@ -11,11 +11,16 @@ object ClientApp extends IOApp {
     Blocker[IO]
       .use { blocker =>
         Client.resource[IO]("127.0.0.1", 9998).use { client =>
-          client
-            .primes(PrimeRequest.of(1000), new Metadata)
-            .evalMap(p => blocker.blockOn(putStrLn(p.next)))
-            .compile
-            .drain
+          putStr("Enter max: ") *>
+            readLn
+              .map(_.toInt)
+              .flatMap { max =>
+                client
+                  .primes(PrimeRequest.of(max), new Metadata)
+                  .evalMap(p => blocker.blockOn(putStrLn(p.next)))
+                  .compile
+                  .drain
+              }
         }
       }
       .as(ExitCode.Success)
