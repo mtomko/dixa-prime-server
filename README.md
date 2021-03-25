@@ -1,4 +1,4 @@
-# dixa-prime-service
+# prime-service
 A simple service and proxy that demonstrate the streaming features of gRPC. This project contains
 five modules: `protobuf`, `server`, `client`, `proxy`, and `test`. It generates streams of prime 
 numbers up to a provided maximum value.

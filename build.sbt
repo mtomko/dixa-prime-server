@@ -1,21 +1,21 @@
-ThisBuild / scalaVersion := "2.13.4"
+ThisBuild / scalaVersion := "2.13.5"
 
 lazy val versions = new {
   val betterMonadicFor = "0.3.1"
-  val cats = "2.4.1"
-  val catsEffect = "2.3.1"
+  val cats = "2.4.2"
+  val catsEffect = "2.4.0"
   val console4Cats = "0.8.1"
-  val fs2 = "2.5.0"
-  val fs2Grpc = "0.8.0"
+  val fs2 = "2.5.3"
+  val fs2Grpc = "0.9.0"
   val grpc = "1.30.2"
-  val http4s = "0.21.16"
+  val http4s = "0.21.20"
   val logback = "1.2.3"
-  val munit = "0.7.21"
-  val munitCatsEffect2 = "0.13.0"
+  val munit = "0.7.22"
+  val munitCatsEffect2 = "0.13.1"
   val protobuf = "3.14.0"
-  val refined = "0.9.20"
+  val refined = "0.9.21"
   val scalaPbLenses = "0.10.8"
-  val scalaCheckEffect = "0.7.0"
+  val scalaCheckEffect = "0.7.1"
   val shapeless = "2.3.3"
 }
 
@@ -53,7 +53,7 @@ lazy val commonSettings = List(testFrameworks := List(new TestFramework("munit.F
 lazy val root = (project in file("."))
   .settings(
     inThisBuild(List(organization := "com.github.mtomko", scalaVersion := "2.13.4", version := "1.0")),
-    name := "dixa-prime-service",
+    name := "prime-service",
     skip in publish := true
   )
   .aggregate(client, protobuf, proxy, server, test)
@@ -65,7 +65,7 @@ lazy val protobuf =
     .enablePlugins(Fs2Grpc)
     .settings(commonSettings: _*)
     .settings(
-      name := "dixa-prime-service-protobuf",
+      name := "prime-service-protobuf",
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
@@ -86,7 +86,7 @@ lazy val client =
     .dependsOn(protobuf)
     .settings(commonSettings: _*)
     .settings(
-      name := "dixa-prime-service-client",
+      name := "prime-service-client",
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
@@ -108,7 +108,7 @@ lazy val proxy =
     .dependsOn(protobuf, client)
     .settings(commonSettings: _*)
     .settings(
-      name := "dixa-prime-service-proxy",
+      name := "prime-service-proxy",
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
@@ -133,7 +133,7 @@ lazy val server =
     .dependsOn(protobuf)
     .settings(commonSettings: _*)
     .settings(
-      name := "dixa-prime-service-server",
+      name := "prime-service-server",
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
@@ -158,7 +158,7 @@ lazy val test =
     .dependsOn(client, protobuf, proxy, server)
     .settings(commonSettings: _*)
     .settings(
-      name := "dixa-prime-service-test",
+      name := "prime-service-test",
       skip in publish := true,
       libraryDependencies ++= List(
         libraries.catsEffect % Test,

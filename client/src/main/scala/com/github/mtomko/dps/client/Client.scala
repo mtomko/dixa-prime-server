@@ -1,6 +1,6 @@
 package com.github.mtomko.dps.client
 
-import cats.effect.{ConcurrentEffect, Resource, Sync}
+import cats.effect.{ConcurrentEffect, Resource}
 import io.grpc.{ManagedChannel, ManagedChannelBuilder, Metadata}
 import org.lyranthe.fs2_grpc.java_runtime.implicits._
 // import org.lyranthe.fs2_grpc.java_runtime.implicits._ // dohj thinks this is unused
@@ -14,7 +14,7 @@ object Client {
       .usePlaintext()
       .resource[F]
 
-  def resource[F[_]: Sync: ConcurrentEffect](ip: String, port: Int): Resource[F, PrimesServiceFs2Grpc[F, Metadata]] =
+  def resource[F[_]: ConcurrentEffect](ip: String, port: Int): Resource[F, PrimesServiceFs2Grpc[F, Metadata]] =
     managedChannelResource(ip, port).map(mc => PrimesServiceFs2Grpc.stub[F](mc))
 
 }
