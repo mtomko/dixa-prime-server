@@ -2,7 +2,7 @@ package com.github.mtomko.dps.test
 
 import cats.effect.Sync
 import cats.syntax.all._
-import fs2.{text, Stream}
+import fs2.{Stream, text}
 import org.http4s.Method._
 import org.http4s.UriTemplate.PathElm
 import org.http4s.client.Client
@@ -28,7 +28,7 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
   // in our test
   def primes(max: String): Stream[F, Int] =
     Stream
-      .eval(GET(config.uri.addSegment(max)))
+      .emit(GET(config.uri.addSegment(max)))
       .flatMap(client.stream)
       .flatMap(handleError)
       .flatMap(_.body.through(text.utf8Decode).filter(_.nonEmpty))
