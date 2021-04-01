@@ -2,7 +2,7 @@ package com.github.mtomko.dps.test
 
 import cats.effect.Sync
 import cats.syntax.all._
-import fs2.{Stream, text}
+import fs2.{text, Stream}
 import org.http4s.Method._
 import org.http4s.UriTemplate.PathElm
 import org.http4s.client.Client
@@ -17,10 +17,13 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
   private def handleError(r: Response[F]): Stream[F, Response[F]] =
     if (r.status === Status.Ok) Stream.emit(r)
     else {
-      val body = r.body.through(text.utf8Decode)
-      val f = body.compile.toList.map(_.mkString).flatMap { text =>
-        Sync[F].raiseError(ProxyClient.ProxyError(r.status, text)).as(r)
-      }
+      val f: F[Response[F]] = r.body
+        .adaptError(e => ProxyClient.ProxyError(r.status, e.getMessage))
+        .through(text.utf8Decode)
+        .compile
+        .toList
+        .map(_.mkString)
+        .flatMap(text => Sync[F].raiseError(ProxyClient.ProxyError(r.status, text)))
       Stream.eval(f)
     }
 
