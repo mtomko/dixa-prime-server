@@ -2,28 +2,27 @@ ThisBuild / scalaVersion := "2.13.5"
 
 lazy val versions = new {
   val betterMonadicFor = "0.3.1"
-  val cats = "2.4.2"
-  val catsEffect = "2.4.0"
-  val console4Cats = "0.8.1"
-  val fs2 = "2.5.3"
-  val fs2Grpc = "0.9.0"
-  val grpc = "1.30.2"
-  val http4s = "0.21.20"
+  val cats = "2.5.0"
+  val catsEffect = "3.0.1"
+  val fs2 = "3.0.1"
+  val fs2Grpc = "1.0.0"
+  val grpc = "1.36.1"
+  val http4s = "1.0.0-M20"
   val logback = "1.2.3"
-  val munit = "0.7.22"
-  val munitCatsEffect2 = "0.13.1"
-  val protobuf = "3.14.0"
-  val refined = "0.9.21"
-  val scalaPbLenses = "0.10.8"
-  val scalaCheckEffect = "0.7.1"
+  val munit = "0.7.23"
+  val munitCatsEffect3 = "1.0.1"
+  val protobuf = "3.15.6"
+  val refined = "0.9.22"
+  val scalaPbLenses = "0.11.0"
+  val scalaCheckEffect = "1.0.0"
   val shapeless = "2.3.3"
 }
 
 lazy val libraries = new {
   val betterMonadicFor = "com.olegpy" %% "better-monadic-for" % versions.betterMonadicFor
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
+  val catsEffectStd = "org.typelevel" %% "cats-effect-std" % versions.catsEffect
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
-  val console4Cats = "dev.profunktor" %% "console4cats" % versions.console4Cats
   val fs2 = "co.fs2" %% "fs2-core" % versions.fs2
   val fs2Grpc = "org.lyranthe.fs2-grpc" %% "java-runtime" % versions.fs2Grpc
   val grpcApi = "io.grpc" % "grpc-api" % versions.grpc
@@ -43,7 +42,7 @@ lazy val libraries = new {
   // test dependencies
   val munit = "org.scalameta" %% "munit" % versions.munit
   val munitScalaCheck = "org.scalameta" %% "munit-scalacheck" % versions.munit
-  val munitCatsEffect2 = "org.typelevel" %% "munit-cats-effect-2" % versions.munitCatsEffect2
+  val munitCatsEffect3 = "org.typelevel" %% "munit-cats-effect-3" % versions.munitCatsEffect3
   val refinedScalaCheck = "eu.timepit" %% "refined-scalacheck" % versions.refined
   val scalaCheckEffect = "org.typelevel" %% "scalacheck-effect-munit" % versions.scalaCheckEffect
 }
@@ -70,7 +69,6 @@ lazy val protobuf =
         libraries.catsCore,
         libraries.catsEffect,
         libraries.fs2,
-        libraries.grpcApi,
         libraries.protobuf,
         libraries.scalaPbLenses,
         libraries.munit % Test,
@@ -90,7 +88,6 @@ lazy val client =
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
-        libraries.console4Cats,
         libraries.fs2,
         libraries.fs2Grpc,
         libraries.grpcApi,
@@ -113,7 +110,6 @@ lazy val proxy =
         libraries.catsCore,
         libraries.catsEffect,
         libraries.fs2,
-        libraries.fs2Grpc,
         libraries.grpcApi,
         libraries.grpcNetty % Runtime,
         libraries.http4sBlazeServer,
@@ -137,6 +133,7 @@ lazy val server =
       libraryDependencies ++= List(
         libraries.catsCore,
         libraries.catsEffect,
+        libraries.catsEffectStd,
         libraries.fs2,
         libraries.fs2Grpc,
         libraries.grpcApi,
@@ -145,7 +142,7 @@ lazy val server =
         libraries.refined,
         libraries.shapeless,
         libraries.munit % Test,
-        libraries.munitCatsEffect2 % Test,
+        libraries.munitCatsEffect3 % Test,
         libraries.munitScalaCheck % Test,
         libraries.refinedScalaCheck % Test
       ),
@@ -171,7 +168,7 @@ lazy val test =
         libraries.logback % Runtime,
         libraries.munit % Test,
         libraries.munitScalaCheck % Test,
-        libraries.munitCatsEffect2 % Test,
+        libraries.munitCatsEffect3 % Test,
         libraries.scalaCheckEffect % Test
       ),
       addCompilerPlugin(libraries.betterMonadicFor)

@@ -1,6 +1,6 @@
 package com.github.mtomko.dps.proxy
 
-import cats.{Applicative, Defer}
+import cats.{Monad}
 import io.grpc.Metadata
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
@@ -8,7 +8,7 @@ import prime.{PrimeRequest, PrimesServiceFs2Grpc}
 
 object ProxyRoutes {
 
-  def primeRoutes[F[_]: Applicative: Defer](primes: PrimesServiceFs2Grpc[F, Metadata]): HttpRoutes[F] = {
+  def primeRoutes[F[_]: Monad](primes: PrimesServiceFs2Grpc[F, Metadata]): HttpRoutes[F] = {
     val dsl = new Http4sDsl[F] {}
     import dsl._
     HttpRoutes.of[F] {

@@ -1,6 +1,6 @@
 package com.github.mtomko.dps.proxy
 
-import cats.effect.{ConcurrentEffect, Resource, Timer}
+import cats.effect.{Async, Resource}
 import org.http4s.implicits._
 import org.http4s.server.Server
 import org.http4s.server.blaze.BlazeServerBuilder
@@ -12,9 +12,7 @@ object Proxy {
 
   final case class Config(targetIp: String, targetPort: Int)
 
-  def resource[F[_]: ConcurrentEffect](config: Proxy.Config, port: Int)(implicit
-    T: Timer[F]
-  ): Resource[F, Server[F]] = {
+  def resource[F[_]: Async](config: Proxy.Config, port: Int): Resource[F, Server] = {
     val client = new PrimesServiceProxyImpl[F](config)
     val httpApp = ProxyRoutes.primeRoutes[F](client).orNotFound
     val finalHttpApp = Logger.httpApp(true, true)(httpApp)

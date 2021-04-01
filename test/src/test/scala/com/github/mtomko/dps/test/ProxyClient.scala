@@ -17,10 +17,13 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
   private def handleError(r: Response[F]): Stream[F, Response[F]] =
     if (r.status === Status.Ok) Stream.emit(r)
     else {
-      val body = r.body.through(text.utf8Decode)
-      val f = body.compile.toList.map(_.mkString).flatMap { text =>
-        Sync[F].raiseError(ProxyClient.ProxyError(r.status, text)).as(r)
-      }
+      val f: F[Response[F]] = r.body
+        .adaptError(e => ProxyClient.ProxyError(r.status, e.getMessage))
+        .through(text.utf8Decode)
+        .compile
+        .toList
+        .map(_.mkString)
+        .flatMap(text => Sync[F].raiseError(ProxyClient.ProxyError(r.status, text)))
       Stream.eval(f)
     }
 
@@ -28,7 +31,7 @@ class ProxyClient[F[_]: Sync](config: ProxyClient.Config, client: Client[F]) {
   // in our test
   def primes(max: String): Stream[F, Int] =
     Stream
-      .eval(GET(config.uri.addSegment(max)))
+      .emit(GET(config.uri.addSegment(max)))
       .flatMap(client.stream)
       .flatMap(handleError)
       .flatMap(_.body.through(text.utf8Decode).filter(_.nonEmpty))
