@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.13.5"
+ThisBuild / scalaVersion := "3.0.0-RC2"
 
 lazy val versions = new {
   val betterMonadicFor = "0.3.1"
@@ -19,7 +19,6 @@ lazy val versions = new {
 }
 
 lazy val libraries = new {
-  val betterMonadicFor = "com.olegpy" %% "better-monadic-for" % versions.betterMonadicFor
   val catsEffect = "org.typelevel" %% "cats-effect" % versions.catsEffect
   val catsEffectStd = "org.typelevel" %% "cats-effect-std" % versions.catsEffect
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
@@ -95,7 +94,6 @@ lazy val client =
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
       ),
-      addCompilerPlugin(libraries.betterMonadicFor)
     )
     .disablePlugins(RevolverPlugin)
 
@@ -120,7 +118,6 @@ lazy val proxy =
         libraries.munit % Test,
         libraries.munitScalaCheck % Test
       ),
-      addCompilerPlugin(libraries.betterMonadicFor)
     )
 
 lazy val server =
@@ -146,7 +143,6 @@ lazy val server =
         libraries.munitScalaCheck % Test,
         libraries.refinedScalaCheck % Test
       ),
-      addCompilerPlugin(libraries.betterMonadicFor)
     )
 
 lazy val test =
@@ -170,7 +166,6 @@ lazy val test =
         libraries.munitScalaCheck % Test,
         libraries.munitCatsEffect3 % Test,
         libraries.scalaCheckEffect % Test
-      ),
-      addCompilerPlugin(libraries.betterMonadicFor)
+      )
     )
     .disablePlugins(AssemblyPlugin, RevolverPlugin)
