@@ -23,6 +23,6 @@ package object server {
     sieve(Stream.emit(2) ++ Stream.iterate(3)(_ + 2)).stream
   }
 
-  def primesUpTo(max: Int Refined NonNegative): Stream[Pure, Int] = sieveOfEratosthenes.takeWhile(_ <= max)
+  def primesUpTo(max: Int Refined Positive): Stream[Pure, Int] = sieveOfEratosthenes.takeWhile(_ <= max)
 
 }

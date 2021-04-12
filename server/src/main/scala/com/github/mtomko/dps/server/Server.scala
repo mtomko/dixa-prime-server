@@ -2,10 +2,9 @@ package com.github.mtomko.dps.server
 
 import cats.effect.std.Dispatcher
 import cats.effect.{Async, Resource}
+import fs2.grpc.syntax.all._
 import io.grpc.protobuf.services.ProtoReflectionService
 import io.grpc.{ServerBuilder, ServerServiceDefinition, Server => GrpcServer}
-//import org.lyranthe.fs2_grpc.java_runtime.implicits._ // dohj thinks this is unused
-import org.lyranthe.fs2_grpc.java_runtime.implicits._
 import prime.PrimesServiceFs2Grpc
 
 object Server {

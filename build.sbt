@@ -14,7 +14,6 @@ lazy val versions = new {
   val refined = "0.9.23"
   val scalaPbLenses = "0.11.1"
   val scalaCheckEffect = "1.0.0"
-  val shapeless = "2.3.3"
 }
 
 lazy val libraries = new {
@@ -35,7 +34,6 @@ lazy val libraries = new {
   val protobuf = "com.google.protobuf" % "protobuf-java" % versions.protobuf
   val refined = "eu.timepit" %% "refined" % versions.refined
   val scalaPbLenses = "com.thesamet.scalapb" %% "lenses" % versions.scalaPbLenses
-  val shapeless = "com.chuusai" %% "shapeless" % versions.shapeless
 
   // test dependencies
   val munit = "org.scalameta" %% "munit" % versions.munit
@@ -136,7 +134,6 @@ lazy val server =
         libraries.grpcNetty % Runtime,
         libraries.grpcServices,
         libraries.refined,
-        libraries.shapeless,
         libraries.munit % Test,
         libraries.munitCatsEffect3 % Test,
         libraries.munitScalaCheck % Test,
