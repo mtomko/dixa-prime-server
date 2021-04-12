@@ -1,19 +1,18 @@
 ThisBuild / scalaVersion := "3.0.0-RC2"
 
 lazy val versions = new {
-  val betterMonadicFor = "0.3.1"
   val cats = "2.5.0"
-  val catsEffect = "3.0.1"
+  val catsEffect = "3.0.2"
   val fs2 = "3.0.1"
-  val fs2Grpc = "1.0.0"
-  val grpc = "1.36.1"
-  val http4s = "1.0.0-M20"
+  val fs2Grpc = "1.1.2"
+  val grpc = "1.37.0"
+  val http4s = "1.0.0-M21"
   val logback = "1.2.3"
   val munit = "0.7.23"
   val munitCatsEffect3 = "1.0.1"
   val protobuf = "3.15.6"
-  val refined = "0.9.22"
-  val scalaPbLenses = "0.11.0"
+  val refined = "0.9.23"
+  val scalaPbLenses = "0.11.1"
   val scalaCheckEffect = "1.0.0"
   val shapeless = "2.3.3"
 }
@@ -23,7 +22,7 @@ lazy val libraries = new {
   val catsEffectStd = "org.typelevel" %% "cats-effect-std" % versions.catsEffect
   val catsCore = "org.typelevel" %% "cats-core" % versions.cats
   val fs2 = "co.fs2" %% "fs2-core" % versions.fs2
-  val fs2Grpc = "org.lyranthe.fs2-grpc" %% "java-runtime" % versions.fs2Grpc
+  val fs2Grpc = "org.typelevel" %% "fs2-grpc-runtime" % versions.fs2Grpc
   val grpcApi = "io.grpc" % "grpc-api" % versions.grpc
   val grpcNetty = "io.grpc" % "grpc-netty" % versions.grpc
   val grpcServices = "io.grpc" % "grpc-services" % versions.grpc
@@ -52,7 +51,7 @@ lazy val root = (project in file("."))
   .settings(
     inThisBuild(List(organization := "com.github.mtomko", scalaVersion := "2.13.4", version := "1.0")),
     name := "prime-service",
-    skip in publish := true
+    publish / skip := true
   )
   .aggregate(client, protobuf, proxy, server, test)
   .disablePlugins(AssemblyPlugin, RevolverPlugin)
@@ -152,7 +151,7 @@ lazy val test =
     .settings(commonSettings: _*)
     .settings(
       name := "prime-service-test",
-      skip in publish := true,
+      publish / skip := true,
       libraryDependencies ++= List(
         libraries.catsEffect % Test,
         libraries.fs2 % Test,
